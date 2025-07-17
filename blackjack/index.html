@@ -4,35 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4 relative">
-    <div id="balance-container" class="absolute top-4 right-4 text-xl font-semibold">Balance: $<span id="balance-amount"></span></div>
-    <div class="max-w-lg w-full">
-        <h1 class="text-3xl font-bold text-center mb-4">Blackjack</h1>
-        <div class="bg-gray-800 p-4 rounded-lg shadow-lg space-y-4">
-            <div id="dealer" class="space-y-2">
-                <h2 class="text-xl font-semibold">Dealer <span id="dealer-score"></span></h2>
-                <div id="dealer-cards" class="flex space-x-4"></div>
+<body class="bg-[#0D0D0D] text-gray-100 min-h-screen flex flex-col">
+    <header class="sticky top-0 z-10 bg-[#0D0D0D]/70 backdrop-blur flex justify-between items-center px-4 py-3 shadow">
+        <div class="text-xl font-bold text-[#FFD700]">Blackjack</div>
+        <div class="flex items-center space-x-4">
+            <div class="font-semibold text-[#FFD700]">$<span id="balance">1000</span></div>
+            <button id="sound-btn" aria-label="Toggle sound" class="text-gray-300 hover:text-white">
+                <svg id="sound-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+    <main class="flex-1 flex flex-col items-center justify-center p-4 space-y-6">
+        <div id="table" class="w-full max-w-4xl rounded-lg p-6 bg-gradient-to-b from-gray-800 to-[#0D0D0D] shadow-inner">
+            <div class="flex flex-col items-center mb-10">
+                <h2 class="text-lg font-semibold mb-2">Dealer <span id="dealer-score" class="text-gray-400"></span></h2>
+                <div id="dealer-cards" class="flex space-x-2 min-h-[120px]"></div>
             </div>
-            <div id="player" class="space-y-2">
-                <h2 class="text-xl font-semibold">Player <span id="player-score"></span></h2>
-                <div id="player-cards" class="flex space-x-4"></div>
+            <div class="flex flex-col items-center">
+                <h2 class="text-lg font-semibold mb-2">Player <span id="player-score" class="text-gray-400"></span></h2>
+                <div id="player-cards" class="flex space-x-2 min-h-[120px]"></div>
             </div>
-            <div id="message" class="text-center text-lg font-semibold h-6"></div>
-            <div class="flex justify-center items-center space-x-2">
-                <button id="bet-dec" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded">-5</button>
-                <input id="bet" type="number" min="0" class="bg-gray-700 text-white w-24 text-center rounded p-1" value="0">
-                <button id="bet-inc" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded">+5</button>
+        </div>
+        <div id="controls" class="flex flex-wrap justify-center gap-4">
+            <button id="hit" class="px-4 py-2 rounded-full bg-[#00FF9C] text-black hover:bg-[#00FF9C]/80 disabled:opacity-50" disabled>Hit</button>
+            <button id="stand" class="px-4 py-2 rounded-full bg-[#FF4C4C] hover:bg-red-600 disabled:opacity-50" disabled>Stand</button>
+            <button id="double" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50" disabled>Double</button>
+            <button id="split" class="px-4 py-2 rounded-full bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50" disabled>Split</button>
+        </div>
+        <div id="betting" class="flex flex-col items-center space-y-2">
+            <div class="flex space-x-4">
+                <div class="chip w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold bg-gray-700 text-white cursor-pointer select-none shadow-lg transition hover:bg-[#00FF9C]/80" data-value="10">10</div>
+                <div class="chip w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold bg-gray-700 text-white cursor-pointer select-none shadow-lg transition hover:bg-[#00FF9C]/80" data-value="50">50</div>
+                <div class="chip w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold bg-gray-700 text-white cursor-pointer select-none shadow-lg transition hover:bg-[#00FF9C]/80" data-value="100">100</div>
+                <div class="chip w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold bg-gray-700 text-white cursor-pointer select-none shadow-lg transition hover:bg-[#00FF9C]/80" data-value="500">500</div>
             </div>
-            <div class="flex justify-center">
-                <button id="deal" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition mt-2">Deal</button>
+            <div class="flex items-center space-x-4">
+                <div>Bet: $<span id="current-bet">0</span></div>
+                <button id="deal" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Deal</button>
             </div>
-            <div class="flex justify-center space-x-4">
-                <button id="hit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition" disabled>Hit</button>
-                <button id="stand" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition" disabled>Stand</button>
-            </div>
+        </div>
+    </main>
+    <div id="modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center">
+        <div class="bg-gray-800 p-6 rounded-lg text-center w-72">
+            <h3 id="modal-message" class="text-2xl font-bold mb-4"></h3>
+            <button id="reset" class="px-4 py-2 rounded-full bg-[#00FF9C] text-black hover:bg-[#00FF9C]/80">Play Again</button>
         </div>
     </div>
 
