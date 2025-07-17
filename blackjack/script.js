@@ -118,9 +118,8 @@ function render(){
 }
 
 function startGame(){
-    if(currentBet<=0 || currentBet>balance || inGame) return;
+    if(currentBet<=0 || inGame) return;
     inGame=true;
-    balance-=currentBet; updateBalance();
     deck=newDeck();
     playerHand=[draw(),draw()];
     dealerHand=[draw(),draw()];
@@ -174,6 +173,14 @@ function resetGame(){
     render();
 }
 
+function resetBet(){
+    if(inGame) return;
+    balance+=currentBet;
+    currentBet=0;
+    document.getElementById('current-bet').textContent=0;
+    updateBalance();
+}
+
 function chipClick(e){
     if(inGame) return;
     const val=parseInt(e.currentTarget.dataset.value);
@@ -206,6 +213,10 @@ function toggleSound(){
       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"/>';
 }
 
+function toggleSettings(){
+    document.getElementById('settings-menu').classList.toggle('hidden');
+}
+
 // EVENT LISTENERS ----------------------------------------------------------
 document.getElementById('deal').addEventListener('click', startGame);
 document.getElementById('hit').addEventListener('click', hit);
@@ -213,6 +224,22 @@ document.getElementById('stand').addEventListener('click', stand);
 document.getElementById('double').addEventListener('click', doubleDown);
 document.getElementById('reset').addEventListener('click', hideModal);
 document.getElementById('sound-btn').addEventListener('click', toggleSound);
+document.getElementById('reset-bet').addEventListener('click', resetBet);
+document.getElementById('settings-btn').addEventListener('click', (e)=>{e.stopPropagation();toggleSettings();});
+document.getElementById('set-balance-confirm').addEventListener('click', ()=>{
+    const val=parseInt(document.getElementById('set-balance').value);
+    if(!isNaN(val) && val>=0){
+        balance=val;
+        updateBalance();
+        resetBet();
+    }
+});
+document.addEventListener('click', (e)=>{
+    const menu=document.getElementById('settings-menu');
+    if(!menu.classList.contains('hidden') && !menu.contains(e.target) && e.target!==document.getElementById('settings-btn')){
+        menu.classList.add('hidden');
+    }
+});
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click', chipClick));
 
 updateBalance();

@@ -17,13 +17,25 @@
         <div class="text-xl font-bold text-[#FFD700]">Blackjack</div>
         <div class="flex items-center space-x-4">
             <div class="font-semibold text-[#FFD700]">$<span id="balance">1000</span></div>
-            <button id="sound-btn" aria-label="Toggle sound" class="text-gray-300 hover:text-white">
-                <svg id="sound-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"/>
+            <button id="settings-btn" aria-label="Settings" class="text-gray-300 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3a1.5 1.5 0 012.5 0l.45.75a1.5 1.5 0 001.3.75h.9a1.5 1.5 0 011.5 1.5v.9a1.5 1.5 0 00.75 1.3l.75.45a1.5 1.5 0 010 2.5l-.75.45a1.5 1.5 0 00-.75 1.3v.9a1.5 1.5 0 01-1.5 1.5h-.9a1.5 1.5 0 00-1.3.75l-.45.75a1.5 1.5 0 01-2.5 0l-.45-.75a1.5 1.5 0 00-1.3-.75h-.9a1.5 1.5 0 01-1.5-1.5v-.9a1.5 1.5 0 00-.75-1.3l-.75-.45a1.5 1.5 0 010-2.5l.75-.45a1.5 1.5 0 00.75-1.3v-.9A1.5 1.5 0 018.1 4.5h.9a1.5 1.5 0 001.3-.75L9.75 3z"/>
                 </svg>
             </button>
         </div>
     </header>
+    <div id="settings-menu" class="hidden absolute right-4 mt-2 bg-gray-800 p-4 rounded-lg shadow space-y-2">
+        <button id="sound-btn" aria-label="Toggle sound" class="text-gray-300 hover:text-white flex items-center space-x-2">
+            <svg id="sound-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"/>
+            </svg>
+            <span>Sound</span>
+        </button>
+        <div class="flex space-x-2">
+            <input id="set-balance" type="number" class="w-24 px-2 py-1 rounded text-black" placeholder="Balance" />
+            <button id="set-balance-confirm" class="px-2 py-1 rounded bg-blue-600 hover:bg-blue-700">Confirm</button>
+        </div>
+    </div>
     <main class="flex-1 flex flex-col items-center justify-center p-4 space-y-6">
         <div id="table" class="w-full max-w-4xl rounded-lg p-6 bg-gradient-to-b from-gray-800 to-[#0D0D0D] shadow-inner">
             <div class="flex flex-col items-center mb-10">
@@ -51,10 +63,11 @@
             <div class="flex items-center space-x-4">
                 <div>Bet: $<span id="current-bet">0</span></div>
                 <button id="deal" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Deal</button>
+                <button id="reset-bet" class="px-4 py-2 rounded-full bg-gray-600 hover:bg-gray-700">Reset Bet</button>
             </div>
         </div>
     </main>
-    <div id="modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center">
+    <div id="modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center">
         <div class="bg-gray-800 p-6 rounded-lg text-center w-72">
             <h3 id="modal-message" class="text-2xl font-bold mb-4"></h3>
             <button id="reset" class="px-4 py-2 rounded-full bg-[#00FF9C] text-black hover:bg-[#00FF9C]/80">Play Again</button>
