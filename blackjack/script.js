@@ -1,22 +1,38 @@
 const suits = ['\u2660', '\u2665', '\u2666', '\u2663'];
 const ranks = [
-  {rank: 'A', value: [1, 11]},
-  {rank: '2', value: 2},
-  {rank: '3', value: 3},
-  {rank: '4', value: 4},
-  {rank: '5', value: 5},
-  {rank: '6', value: 6},
-  {rank: '7', value: 7},
-  {rank: '8', value: 8},
-  {rank: '9', value: 9},
-  {rank: '10', value: 10},
-  {rank: 'J', value: 10},
-  {rank: 'Q', value: 10},
-  {rank: 'K', value: 10}
+  { rank: 'A', value: [1, 11] },
+  { rank: '2', value: 2 },
+  { rank: '3', value: 3 },
+  { rank: '4', value: 4 },
+  { rank: '5', value: 5 },
+  { rank: '6', value: 6 },
+  { rank: '7', value: 7 },
+  { rank: '8', value: 8 },
+  { rank: '9', value: 9 },
+  { rank: '10', value: 10 },
+  { rank: 'J', value: 10 },
+  { rank: 'Q', value: 10 },
+  { rank: 'K', value: 10 }
 ];
 let deck = [];
 let playerHand = [];
 let dealerHand = [];
+let balance = parseInt(localStorage.getItem('balance')) || 1000;
+let currentBet = 0;
+
+function updateBalance() {
+  document.getElementById('balance-amount').textContent = balance;
+  localStorage.setItem('balance', balance);
+}
+
+function adjustBet(amount) {
+  const betInput = document.getElementById('bet');
+  let val = parseInt(betInput.value) || 0;
+  val += amount;
+  if (val < 0) val = 0;
+  if (val > balance) val = balance;
+  betInput.value = val;
+}
 
 function newDeck() {
   const d = [];
@@ -37,6 +53,15 @@ function draw() {
 }
 
 function start() {
+  const betInput = document.getElementById('bet');
+  currentBet = parseInt(betInput.value);
+  if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance) {
+    setMessage('Invalid bet');
+    return;
+  }
+  balance -= currentBet;
+  updateBalance();
+
   deck = newDeck();
   playerHand = [draw(), draw()];
   dealerHand = [draw(), draw()];
@@ -66,8 +91,13 @@ function score(hand) {
 
 function cardDiv(card) {
   const div = document.createElement('div');
-  div.className = 'bg-gray-700 rounded p-2 text-xl w-12 text-center animate__animated animate__fadeIn';
+  div.className = 'bg-white rounded border border-gray-300 w-14 h-20 flex items-center justify-center text-xl font-semibold animate__animated animate__fadeIn';
   div.textContent = card.rank + card.suit;
+  if (card.suit === '\u2665' || card.suit === '\u2666') {
+    div.classList.add('text-red-600');
+  } else {
+    div.classList.add('text-black');
+  }
   return div;
 }
 
@@ -87,7 +117,7 @@ function hit() {
   playerHand.push(draw());
   update();
   if (score(playerHand) > 21) {
-    endGame('Bust! Dealer wins.');
+    endGame('Bust! Dealer wins.', 'lose');
   }
 }
 
@@ -100,21 +130,31 @@ function stand() {
   const playerScore = score(playerHand);
   const dealerScore = score(dealerHand);
   let message = '';
+  let result = '';
   if (dealerScore > 21 || playerScore > dealerScore) {
     message = 'You win!';
+    result = 'win';
   } else if (playerScore === dealerScore) {
     message = "It's a tie.";
+    result = 'tie';
   } else {
     message = 'Dealer wins.';
+    result = 'lose';
   }
-  endGame(message);
+  endGame(message, result);
 }
 
-function endGame(msg) {
+function endGame(msg, result) {
   update();
   setMessage(msg);
   document.getElementById('hit').disabled = true;
   document.getElementById('stand').disabled = true;
+  if (result === 'win') {
+    balance += currentBet * 2;
+  } else if (result === 'tie') {
+    balance += currentBet;
+  }
+  updateBalance();
 }
 
 function setMessage(msg) {
@@ -124,4 +164,8 @@ function setMessage(msg) {
 document.getElementById('deal').addEventListener('click', start);
 document.getElementById('hit').addEventListener('click', hit);
 document.getElementById('stand').addEventListener('click', stand);
+document.getElementById('bet-dec').addEventListener('click', () => adjustBet(-5));
+document.getElementById('bet-inc').addEventListener('click', () => adjustBet(5));
+
+updateBalance();
 
